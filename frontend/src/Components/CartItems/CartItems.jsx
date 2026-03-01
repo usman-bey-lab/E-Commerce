@@ -1,80 +1,101 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import "./CartItems.css";
-import { useContext } from "react";
 import { ShopContext } from "../../Context/ShopContext";
-import remove_icon from "../Assets/cart_cross_icon.png";
+import { Link } from "react-router-dom";
 
 const CartItems = () => {
   const { getTotalCartAmount, all_product, cartItems, removeFromCart } =
     useContext(ShopContext);
+  const [promoCode, setPromoCode] = useState("");
+
+  const cartProducts = all_product.filter((e) => cartItems[e.id] > 0);
+
   return (
     <div className="cartitems">
-      <div className="cartitems-format-main">
-        <p>Products</p>
-        <p>Title</p>
-        <p>Price</p>
-        <p>Quantity</p>
-        <p>Total</p>
-        <p>Remove</p>
-      </div>
-      <hr />
-      {all_product.map((e) => {
-        if (cartItems[e.id] > 0) {
-          return (
+
+      {/* ── Empty state ── */}
+      {cartProducts.length === 0 ? (
+        <div className="cartitems-empty">
+          <p>Your cart is empty.</p>
+          <Link to="/">
+            <button className="cartitems-shop-btn">Continue Shopping</button>
+          </Link>
+        </div>
+      ) : (
+        <>
+          {/* ── Table header ── */}
+          <div className="cartitems-header">
+            <span>Product</span>
+            <span>Name</span>
+            <span>Price</span>
+            <span>Qty</span>
+            <span>Total</span>
+            <span>Remove</span>
+          </div>
+          <hr />
+
+          {/* ── Cart rows ── */}
+          {cartProducts.map((e) => (
             <div key={e.id}>
-              <div className="cartitems-format cartitems-format-main">
-                <img src={e.image} alt="" className="carticon-product-icon" />
-                <p>{e.name}</p>
+              <div className="cartitems-row">
+                <img src={e.image} alt={e.name} className="cartitems-img" />
+                <p className="cartitems-name">{e.name}</p>
                 <p>${e.new_price}</p>
-                <button className="cartitems-quantity">
-                  {" "}
-                  {cartItems[e.id]}{" "}
+                <span className="cartitems-qty">{cartItems[e.id]}</span>
+                <p>${(e.new_price * cartItems[e.id]).toFixed(2)}</p>
+                <button
+                  className="cartitems-remove"
+                  onClick={() => removeFromCart(e.id)}
+                  aria-label={`Remove ${e.name}`}
+                >
+                  ✕
                 </button>
-                <p>${e.new_price * cartItems[e.id]}</p>
-                <img
-                  className="cartitems-remove-icon"
-                  src={remove_icon}
-                  onClick={() => {
-                    removeFromCart(e.id);
-                  }}
-                  alt=""
-                />
               </div>
               <hr />
             </div>
-          );
-        }
-        return null;
-      })}
-      <div className="cartitems-down">
-        <div className="cartitems-total">
-          <h1>Cart total</h1>
-          <div>
-            <div className="cartitems-total-item">
-              <p>Subtotal</p>
-              <p>${getTotalCartAmount()}</p>
+          ))}
+
+          {/* ── Bottom section ── */}
+          <div className="cartitems-bottom">
+
+            {/* Order summary */}
+            <div className="cartitems-summary">
+              <h2>Order Summary</h2>
+              <div className="cartitems-summary-row">
+                <span>Subtotal</span>
+                <span>${getTotalCartAmount().toFixed(2)}</span>
+              </div>
+              <div className="cartitems-summary-row">
+                <span>Shipping</span>
+                <span className="cartitems-free">Free</span>
+              </div>
+              <hr />
+              <div className="cartitems-summary-row cartitems-summary-total">
+                <span>Total</span>
+                <span>${getTotalCartAmount().toFixed(2)}</span>
+              </div>
+              <button className="cartitems-checkout-btn">
+                Proceed to Checkout
+              </button>
             </div>
-            <hr />
-            <div className="cartitems-total-item">
-              <p>Shipping Fee</p>
-              <p>Free</p>
+
+            {/* Promo code */}
+            <div className="cartitems-promo">
+              <p>Have a promo code?</p>
+              <div className="cartitems-promobox">
+                <input
+                  type="text"
+                  placeholder="Enter code"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value)}
+                />
+                <button>Apply</button>
+              </div>
             </div>
-            <hr />
-            <div className="cartitems-total-item">
-              <h3>Total</h3>
-              <h3>${getTotalCartAmount()}</h3>
-            </div>
+
           </div>
-          <button>PROCEED TO CHECKOUT</button>
-        </div>
-        <div className="cartitems-promocode">
-          <p>If you have a promo code, Enter it here</p>
-          <div className="cartitems-promobox">
-            <input type="text" placeholder="promo code" />
-            <button>Submit</button>
-          </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };

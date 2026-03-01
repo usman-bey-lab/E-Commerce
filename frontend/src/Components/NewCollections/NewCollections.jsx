@@ -3,34 +3,46 @@ import "./NewCollections.css";
 import Item from "../Item/Item";
 
 const NewCollections = () => {
+  const [newCollection, setNewCollection] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [new_collection, setNew_collection] = useState([])
-
-  useEffect(()=>{
-    fetch('http://localhost:4000/newcollection')
-    .then((response)=>response.json())
-    .then((data) => setNew_collection(data));
-  },[])
+  useEffect(() => {
+    fetch("http://localhost:4000/newcollection")
+      .then((res) => res.json())
+      .then((data) => {
+        setNewCollection(data);
+        setLoading(false);
+      });
+  }, []);
 
   return (
-    <div className="new-collections">
-      <h1>NEW COLLECTIONS</h1>
-      <hr />
-      <div className="collections">
-        {new_collection.map((item, i) => {
-          return (
+    <section className="new-collections">
+      <div className="new-collections-header">
+        <p className="new-collections-tag">Just Dropped</p>
+        <h2>New Collections</h2>
+      </div>
+
+      {loading ? (
+        <div className="collections-grid">
+          {Array(8).fill(null).map((_, i) => (
+            <div key={i} className="skeleton-card" />
+          ))}
+        </div>
+      ) : (
+        <div className="collections-grid">
+          {newCollection.map((item) => (
             <Item
-              key={i}
+              key={item.id}
               id={item.id}
               name={item.name}
               image={item.image}
               new_price={item.new_price}
               old_price={item.old_price}
             />
-          );
-        })}
-      </div>
-    </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 };
 

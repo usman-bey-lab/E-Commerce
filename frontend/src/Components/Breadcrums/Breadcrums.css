@@ -1,37 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&display=swap');
+
 .breadcrum {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #5e5e5e;
-  font-size: 16px;
-  font-weight: 600;
-  margin: 60px 170px;
-  text-transform: capitalize;
+  gap: 6px;
+  margin: 28px 170px;
+  font-family: 'Sora', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
 }
 
+/* Clickable links — muted */
+.breadcrum a {
+  color: #999;
+  text-decoration: none;
+  text-transform: capitalize;
+  transition: color 0.15s;
+}
+.breadcrum a:hover {
+  color: #ff4141;
+}
+
+/* Separator */
+.breadcrum-sep {
+  color: #ccc;
+  font-size: 12px;
+  user-select: none;
+}
+
+/* Current page — darker, not clickable */
+.breadcrum-current {
+  color: #222;
+  font-weight: 500;
+  text-transform: capitalize;
+
+  /* truncate long product names gracefully */
+  max-width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Responsive ──────────────────────────────────── */
 @media (max-width: 1280px) {
   .breadcrum {
-    margin: 30px 50px;
-    font-size: 14px;
+    margin: 24px 50px;
   }
 }
 
 @media (max-width: 1024px) {
   .breadcrum {
-    margin: 30px 30px;
-    font-size: 13px;
+    margin: 20px 30px;
   }
 }
 
 @media (max-width: 800px) {
   .breadcrum {
-    margin: 30px 10px;
+    margin: 16px 16px;
     font-size: 12px;
+  }
+  .breadcrum-current {
+    max-width: 180px;
   }
 }
 
 @media (max-width: 500px) {
   .breadcrum {
-    font-size: 10px;
+    font-size: 11px;
+    gap: 4px;
+  }
+  .breadcrum-current {
+    max-width: 120px;
   }
 }

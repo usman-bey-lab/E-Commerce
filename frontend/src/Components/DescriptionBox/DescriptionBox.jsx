@@ -1,30 +1,52 @@
-import React from "react";
+import React, { useState } from "react";
 import "./DescriptionBox.css";
 
+const TABS = ["Description", "Reviews (122)"];
+
 const DescriptionBox = () => {
+  const [activeTab, setActiveTab] = useState("Description");
+
   return (
     <div className="descriptionbox">
-      <div className="descriptionbox-navigator">
-        <div className="descriptionbox-nav-box">Description</div>
-        <div className="descriptionbox-nav-box fade">Reviews (122)</div>
+
+      {/* ── Tabs ── */}
+      <div className="descriptionbox-tabs">
+        {TABS.map((tab) => (
+          <button
+            key={tab}
+            className={`descriptionbox-tab${activeTab === tab ? " active" : ""}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab}
+          </button>
+        ))}
       </div>
-      <div className="descriptionbox-description">
-        <p>
-          An e-commerce website is an online platform that facilitates the
-          buying and selling of products or services over the internet. It
-          serves as a virtual marketplace where businesses and individuals can
-          showcase their products, interact with customers, and conduct
-          transactions without the need for a physical presence. E-commerce
-          websites have gained immense popularity due to their convenience,
-          accessibility, and the global reach they offer.
-        </p>
-        <p>
-          E-commerce websites typically display products or services along with
-          detailed descriptions, images, prices, and any available variations
-          (e.g., sizes, colors). Each product usually has its own dedicated page
-          with relevant information.
-        </p>
+
+      {/* ── Content ── */}
+      <div className="descriptionbox-content">
+        {activeTab === "Description" ? (
+          <>
+            <p>
+              An e-commerce website is an online platform that facilitates the
+              buying and selling of products or services over the internet. It
+              serves as a virtual marketplace where businesses and individuals
+              can showcase their products, interact with customers, and conduct
+              transactions without the need for a physical presence.
+            </p>
+            <p>
+              Products are displayed with detailed descriptions, images, prices,
+              and available variations such as sizes and colors. Each product
+              has its own dedicated page with all relevant information to help
+              customers make informed decisions.
+            </p>
+          </>
+        ) : (
+          <div className="descriptionbox-reviews-empty">
+            <p>No reviews yet. Be the first to review this product.</p>
+          </div>
+        )}
       </div>
+
     </div>
   );
 };

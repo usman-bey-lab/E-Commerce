@@ -1,11 +1,10 @@
-import React, { createContext, useContext, useEffect } from "react";
-import { useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
 
 export const ShopContext = createContext(null);
 
 const getDefaultCart = () => {
   let cart = {};
-  for (let index = 0; index < 300 + 1; index++) {
+  for (let index = 0; index < 301; index++) {
     cart[index] = 0;
   }
   return cart;
@@ -24,8 +23,8 @@ const ShopContextProvider = (props) => {
       fetch("http://localhost:4000/getcart", {
         method: "POST",
         headers: {
-          Accept: "application/form-data",
-          "auth-token": `${localStorage.getItem("auth-token")}`,
+          Accept: "application/json",
+          "auth-token": localStorage.getItem("auth-token"),
           "Content-Type": "application/json",
         },
         body: JSON.stringify({}),
@@ -36,37 +35,46 @@ const ShopContextProvider = (props) => {
   }, []);
 
   const addToCart = (itemId) => {
-    setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
-    if (localStorage.getItem("auth-token")) {
-      fetch("http://localhost:4000/addtocart", {
-        method: "POST",
-        headers: {
-          Accept: "application/form-data",
-          "auth-token": `${localStorage.getItem("auth-token")}`,
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({ itemId: itemId }),
-      })
-        .then((response) => response.json())
-        .then((data) => console.log(data));
+    // ── Option A: require login to add to cart ──
+    if (!localStorage.getItem("auth-token")) {
+      window.location.replace("/login");
+      return;
     }
+
+    setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
+
+    fetch("http://localhost:4000/addtocart", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "auth-token": localStorage.getItem("auth-token"),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ itemId }),
+    })
+      .then((response) => response.json())
+      .then((data) => console.log(data));
   };
 
   const removeFromCart = (itemId) => {
-    setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }));
-    if (localStorage.getItem("auth-token")) {
-      fetch("http://localhost:4000/removefromcart", {
-        method: "POST",
-        headers: {
-          Accept: "application/form-data",
-          "auth-token": `${localStorage.getItem("auth-token")}`,
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({ itemId: itemId }),
-      })
-        .then((response) => response.json())
-        .then((data) => console.log(data));
+    if (!localStorage.getItem("auth-token")) {
+      window.location.replace("/login");
+      return;
     }
+
+    setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }));
+
+    fetch("http://localhost:4000/removefromcart", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "auth-token": localStorage.getItem("auth-token"),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ itemId }),
+    })
+      .then((response) => response.json())
+      .then((data) => console.log(data));
   };
 
   const getTotalCartAmount = () => {
@@ -74,7 +82,7 @@ const ShopContextProvider = (props) => {
     for (const item in cartItems) {
       if (cartItems[item] > 0) {
         let itemInfo = all_product.find(
-          (product) => product.id === Number(item),
+          (product) => product.id === Number(item)
         );
         if (itemInfo) {
           totalAmount += cartItems[item] * itemInfo.new_price;
@@ -93,15 +101,16 @@ const ShopContextProvider = (props) => {
     }
     return totalItem;
   };
+
   const contextValue = {
-    getTotalCartItems,
-    getTotalCartAmount,
-    getTotalCartItems,
     all_product,
     cartItems,
     addToCart,
     removeFromCart,
+    getTotalCartAmount,
+    getTotalCartItems,
   };
+
   return (
     <ShopContext.Provider value={contextValue}>
       {props.children}

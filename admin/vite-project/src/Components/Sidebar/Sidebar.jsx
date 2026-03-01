@@ -1,26 +1,34 @@
 import React from "react";
 import "./Sidebar.css";
-import { Link } from "react-router-dom";
-import add_product_icon from "../../assets/Product_Cart.svg";
-import list_product_icon from "../../assets/Product_list_icon.svg";
+import { NavLink } from "react-router-dom";
 
-const Sidebar = () => {
-  return (
-    <div className="sidebar">
-      <Link to="/addproduct" style={{ textDecoration: "none" }}>
-        <div className="sidebar-item">
-          <img src={add_product_icon} alt="" />
-          <p>Add Product</p>
-        </div>
-      </Link>
-      <Link to="/listproduct" style={{ textDecoration: "none" }}>
-        <div className="sidebar-item">
-          <img src={list_product_icon} alt="" />
-          <p>Product List </p>
-        </div>
-      </Link>
+const NAV = [
+  { to: "/dashboard",   label: "Dashboard",   icon: "📊" },
+  { to: "/addproduct",  label: "Add Product", icon: "➕" },
+  { to: "/listproduct", label: "Products",    icon: "📋" },
+  { to: "/orders",      label: "Orders",      icon: "🧾" },
+  { to: "/users",       label: "Users",       icon: "👥" },
+  { to: "/stats",       label: "Sales Stats", icon: "📈" },
+];
+
+const Sidebar = () => (
+  <div className="sidebar">
+    <div className="sidebar-brand">
+      <span>Admin Panel</span>
     </div>
-  );
-};
+    <nav className="sidebar-nav">
+      {NAV.map(({ to, label, icon }) => (
+        <NavLink
+          key={to}
+          to={to}
+          className={({ isActive }) => `sidebar-item ${isActive ? "sidebar-item-active" : ""}`}
+        >
+          <div className="sidebar-icon">{icon}</div>
+          <p>{label}</p>
+        </NavLink>
+      ))}
+    </nav>
+  </div>
+);
 
 export default Sidebar;

@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import "./CSS/LoginSignup.css";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const LoginSignup = () => {
   const [state, setState] = useState("Login");
+  const [showPassword, setShowPassword] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -10,47 +13,50 @@ const LoginSignup = () => {
   });
 
   const login = async () => {
-    console.log("Login function Executed", formData);
-    let responseData;
-    await fetch("http://localhost:4000/login", {
-      method: "POST",
-      headers: {
-        Accept: "application/form-data",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => response.json())
-      .then((data) => (responseData = data));
-    if (responseData.success) {
-      localStorage.setItem("auth-token", responseData.token);
-      window.location.replace("/");
-    } else {
-      alert(responseData.errors);
-    }
-  };
+  let responseData;
+  await fetch("http://localhost:4000/login", {
+    method: "POST",
+    headers: { Accept: "application/json", "Content-Type": "application/json" },
+    body: JSON.stringify(formData),
+  })
+    .then((response) => response.json())
+    .then((data) => (responseData = data));
 
-  const signup = async () => {
-    console.log("Sign Up function Executed", formData);
-    let responseData;
-    await fetch("http://localhost:4000/signup", {
-      method: "POST",
-      headers: {
-        Accept: "application/form-data",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => response.json())
-      .then((data) => (responseData = data));
-    if (responseData.success) {
-      localStorage.setItem("auth-token", responseData.token);
-      window.location.replace("/");
-    } else {
-      alert(responseData.error);
-    }
-  };
+  if (responseData.success) {
+    localStorage.setItem("auth-token", responseData.token);
+    window.location.replace("/");
+  } else {
+    const message = responseData.error 
+      || responseData.errors?.[0]?.msg 
+      || "Something went wrong";
+    alert(message);
+  }
+};
 
+const signup = async () => {
+  if (!agreedToTerms) {
+    alert("Please agree to the Terms of Use & Privacy Policy.");
+    return;
+  }
+  let responseData;
+  await fetch("http://localhost:4000/signup", {
+    method: "POST",
+    headers: { Accept: "application/json", "Content-Type": "application/json" },
+    body: JSON.stringify(formData),
+  })
+    .then((response) => response.json())
+    .then((data) => (responseData = data));
+
+  if (responseData.success) {
+    localStorage.setItem("auth-token", responseData.token);
+    window.location.replace("/");
+  } else {
+    const message = responseData.error 
+      || responseData.errors?.[0]?.msg 
+      || "Something went wrong";
+    alert(message);
+  }
+};
   const changeHandler = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -58,18 +64,21 @@ const LoginSignup = () => {
   return (
     <div className="loginsignup">
       <div className="loginsignup-container">
-        <h1>{state}</h1>
+
+        <h1>{state === "Login" ? "Sign in" : "Create account"}</h1>
+        <p className="ls-subtitle">
+          {state === "Login" ? "Welcome back to Shopper" : "Join Shopper today"}
+        </p>
+
         <div className="loginsignup-fields">
-          {state === "Sign Up" ? (
+          {state === "Sign Up" && (
             <input
               name="username"
               value={formData.username}
               onChange={changeHandler}
               type="text"
-              placeholder="Your Name"
+              placeholder="Full name"
             />
-          ) : (
-            <></>
           )}
           <input
             name="email"
@@ -78,49 +87,50 @@ const LoginSignup = () => {
             type="email"
             placeholder="Email address"
           />
-          <input
-            name="password"
-            value={formData.password}
-            onChange={changeHandler}
-            type="password"
-            placeholder="Password"
-          />
+          <div className="password-input-wrapper">
+            <input
+              name="password"
+              value={formData.password}
+              onChange={changeHandler}
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+            />
+            <span onClick={() => setShowPassword(!showPassword)}>
+              {showPassword
+                ? <AiOutlineEyeInvisible size={20} color="#999" />
+                : <AiOutlineEye size={20} color="#999" />}
+            </span>
+          </div>
         </div>
-        <button
-          onClick={() => {
-            state === "Login" ? login() : signup();
-          }}
-        >
-          Continue
+
+        <button onClick={() => { state === "Login" ? login() : signup(); }}>
+          {state === "Login" ? "Sign in" : "Create account"}
         </button>
-        {state === "Sign Up" ? (
-          <p className="loginsignup-login">
-            Already have an account?{" "}
-            <span
-              onClick={() => {
-                setState("Login");
-              }}
-            >
-              Login
-            </span>
-          </p>
-        ) : (
-          <p className="loginsignup-login">
-            Create an account{" "}
-            <span
-              onClick={() => {
-                setState("Sign Up");
-              }}
-            >
-              Click here...
-            </span>
-          </p>
+
+        <p className="ls-switch">
+          {state === "Login" ? (
+            <>Don't have an account?{" "}<span onClick={() => setState("Sign Up")}>Sign up</span></>
+          ) : (
+            <>Already have an account?{" "}<span onClick={() => setState("Login")}>Sign in</span></>
+          )}
+        </p>
+
+        {state === "Sign Up" && (
+          <label className="ls-agree">
+            <div className="ls-checkbox">
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+              />
+              <span className="ls-checkmark"></span>
+            </div>
+            <p>
+              I agree to the <a href="#terms">Terms of Use</a> &amp; <a href="#privacy">Privacy Policy</a>
+            </p>
+          </label>
         )}
 
-        <div className="loginsignup-agree">
-          <input type="checkbox" name="" id="" />
-          <p>By continuing i agree to the terms of use & Privacy Policy.</p>
-        </div>
       </div>
     </div>
   );

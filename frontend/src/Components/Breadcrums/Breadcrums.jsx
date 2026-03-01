@@ -1,14 +1,22 @@
 import React from "react";
 import "./Breadcrums.css";
-import arrow_icon from "../Assets/breadcrum_arrow.png";
+import { Link } from "react-router-dom";
 
 const Breadcrums = (props) => {
   const { product } = props;
+
+  const categoryPath = `/${product.category}s`; // mens, womens, kids
+
   return (
-    <div className="breadcrum">
-      HOME <img src={arrow_icon} alt="" /> SHOP <img src={arrow_icon} alt="" />{" "}
-      {product.category} <img src={arrow_icon} alt="" /> {product.name}
-    </div>
+    <nav className="breadcrum" aria-label="Breadcrumb">
+      <Link to="/">Home</Link>
+      <span className="breadcrum-sep">/</span>
+      <Link to="/shop">Shop</Link>
+      <span className="breadcrum-sep">/</span>
+      <Link to={categoryPath}>{product.category}</Link>
+      <span className="breadcrum-sep">/</span>
+      <span className="breadcrum-current">{product.name}</span>
+    </nav>
   );
 };
 

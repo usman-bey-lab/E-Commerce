@@ -1,8 +1,17 @@
-.admin{
-    display: flex;
+.admin {
+  display: flex;
+  min-height: calc(100vh - 65px);
 }
+
+.admin-content {
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;
+  background: #f6f6f6;
+}
+
 @media (max-width: 800px) {
-    .admin{
-        flex-direction: column;
-    }
+  .admin {
+    flex-direction: column;
+  }
 }

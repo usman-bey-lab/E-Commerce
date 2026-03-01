@@ -1,97 +1,158 @@
-import React, { useState, useContext, useRef } from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import "./Navbar.css";
 import logo from "../Assets/logo.png";
 import cart_icon from "../Assets/cart_icon.png";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ShopContext } from "../../Context/ShopContext";
-import nav_dropdown from "../Assets/nav_dropdown.png";
+
+const NAV_LINKS = [
+  { label: "Shop",  path: "/",       key: "shop"   },
+  { label: "Men",   path: "/mens",   key: "mens"   },
+  { label: "Women", path: "/womens", key: "womens" },
+  { label: "Kids",  path: "/kids",   key: "kids"   },
+];
 
 const Navbar = () => {
-  const [menu, setMenu] = useState("shop");
+  const location = useLocation();
   const { getTotalCartItems } = useContext(ShopContext);
-  const menuRef = useRef();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-  const dropdown_toggle = (e) => {
-    menuRef.current.classList.toggle("nav-menu-visible");
-    e.target.classList.toggle("open");
+  // FIX: ref wraps the ENTIRE navbar so outside-click doesn't
+  // fight with the hamburger button being outside the drawer
+  const navRef = useRef();
+
+  const activeKey =
+    NAV_LINKS.find((l) => l.path === location.pathname)?.key || "shop";
+
+  // Scroll shadow
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // FIX: outside-click closes drawer — ref is on the whole nav
+  // so hamburger clicks are correctly "inside" and won't auto-close
+  useEffect(() => {
+    const handleOutside = (e) => {
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    if (menuOpen) document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [menuOpen]);
+
+  // Close drawer on route change (navigating closes menu too)
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
+  const cartCount = getTotalCartItems();
+  const isLoggedIn = !!localStorage.getItem("auth-token");
+
+  const handleLogout = () => {
+    localStorage.removeItem("auth-token");
+    window.location.replace("/login");
   };
 
   return (
-    <div className="navbar">
-      <div className="nav-logo">
-        <img src={logo} alt="Logo" />
-        <p>SHOPPER</p>
-      </div>
-      <img
-        className="nav-dropdown"
-        onClick={dropdown_toggle}
-        src={nav_dropdown}
-        alt=""
-      />
-      <ul ref={menuRef} className="nav-menu">
-        <li
-          onClick={() => {
-            setMenu("shop");
-          }}
-        >
-          <Link style={{ textDecoration: "none" }} to="/">
-            Shop
-          </Link>{" "}
-          {menu === "shop" ? <hr /> : <></>}
-        </li>
-        <li
-          onClick={() => {
-            setMenu("Mens");
-          }}
-        >
-          <Link style={{ textDecoration: "none" }} to="/mens">
-            Men
-          </Link>{" "}
-          {menu === "Mens" ? <hr /> : <></>}
-        </li>
-        <li
-          onClick={() => {
-            setMenu("Womens");
-          }}
-        >
-          <Link style={{ textDecoration: "none" }} to="/womens">
-            Women
-          </Link>{" "}
-          {menu === "Womens" ? <hr /> : <></>}
-        </li>
-        <li
-          onClick={() => {
-            setMenu("Kids");
-          }}
-        >
-          <Link style={{ textDecoration: "none" }} to="/kids">
-            Kids
-          </Link>{" "}
-          {menu === "Kids" ? <hr /> : <></>}
-        </li>
+    <nav
+      ref={navRef}
+      className={`navbar${scrolled ? " navbar--scrolled" : ""}`}
+    >
+      {/* ── Logo ── */}
+      <Link to="/" className="nav-logo">
+        <img src={logo} alt="Shopper logo" />
+        <span>SHOPPER</span>
+      </Link>
+
+      {/* ── Desktop menu ── */}
+      <ul className="nav-menu">
+        {NAV_LINKS.map(({ label, path, key }) => (
+          <li key={key} className={activeKey === key ? "active" : ""}>
+            <Link to={path}>{label}</Link>
+          </li>
+        ))}
       </ul>
-      <div className="nav-login-cart">
-        {localStorage.getItem("auth-token") ? (
-          <button
-            onClick={() => {
-              localStorage.removeItem("auth-token");
-              window.location.replace("/login");
-            }}
-          >
+
+      {/* ── Desktop right actions ── */}
+      <div className="nav-actions">
+        {isLoggedIn ? (
+          <button className="nav-btn nav-btn--outline" onClick={handleLogout}>
             Logout
           </button>
         ) : (
           <Link to="/login">
-            <button>Login</button>
-          </Link> 
+            <button className="nav-btn nav-btn--outline">Login</button>
+          </Link>
         )}
 
-        <Link to="/cart">
+        <Link to="/cart" className="nav-cart">
           <img src={cart_icon} alt="Cart" />
+          {cartCount > 0 && (
+            <span className="nav-cart-badge">{cartCount}</span>
+          )}
         </Link>
-        <div className="nav-cart-count">{getTotalCartItems()}</div>
       </div>
-    </div>
+
+      {/* ── Mobile: cart + hamburger always visible ── */}
+      <div className="nav-mobile-right">
+        <Link to="/cart" className="nav-cart">
+          <img src={cart_icon} alt="Cart" />
+          {cartCount > 0 && (
+            <span className="nav-cart-badge">{cartCount}</span>
+          )}
+        </Link>
+
+        {/* FIX: This button now correctly toggles open/close.
+            It is INSIDE navRef so outside-click won't fight it. */}
+        <button
+          className={`nav-hamburger${menuOpen ? " open" : ""}`}
+          onClick={() => setMenuOpen((prev) => !prev)}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+      </div>
+
+      {/* ── Mobile drawer ── */}
+      {/* FIX: Using visibility/opacity instead of display:none so
+          the drawer doesn't disappear before animation ends */}
+      <div className={`nav-drawer${menuOpen ? " open" : ""}`}>
+        {NAV_LINKS.map(({ label, path, key }) => (
+          <Link
+            key={key}
+            to={path}
+            className={`nav-drawer-link${activeKey === key ? " active" : ""}`}
+            onClick={() => setMenuOpen(false)}
+          >
+            {label}
+          </Link>
+        ))}
+
+        <div className="nav-drawer-bottom">
+          {isLoggedIn ? (
+            <button
+              className="nav-btn nav-btn--solid"
+              onClick={() => {
+                setMenuOpen(false);
+                handleLogout();
+              }}
+            >
+              Logout
+            </button>
+          ) : (
+            <Link to="/login" onClick={() => setMenuOpen(false)}>
+              <button className="nav-btn nav-btn--solid">Login</button>
+            </Link>
+          )}
+        </div>
+      </div>
+    </nav>
   );
 };
 

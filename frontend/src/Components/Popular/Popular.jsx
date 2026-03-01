@@ -1,38 +1,45 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Popular.css";
 import Item from "../Item/Item";
 
 const Popular = () => {
+  const [popularProducts, setPopularProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    const [popularProducts, setPopularProducts] = useState([]);
+  useEffect(() => {
+    fetch("http://localhost:4000/popularinwomen")
+      .then((response) => response.json())
+      .then((data) => {
+        setPopularProducts(data);
+        setLoading(false);
+      });
+  }, []);
 
-    useEffect(() => {
-      fetch("http://localhost:4000/popularinwomen")
-        .then((response) => response.json())
-        .then((data) => setPopularProducts(data));
-    }, []);
+  return (
+    <section className="popular">
+      <div className="popular-header">
+        <p className="popular-tag">Trending Now</p>
+        <h2>Popular in Women</h2>
+      </div>
 
-    return (
-      <div className="popular">
-        <h1>POPULAR IN WOMEN</h1>
-        <hr />
-        <div className="popular-item">
-          {popularProducts.map((item, i) => {
-            return (
+      <div className="popular-grid">
+        {loading
+          ? Array(4).fill(null).map((_, i) => (
+              <div key={i} className="skeleton-card" />
+            ))
+          : popularProducts.map((item) => (
               <Item
-                key={i}
+                key={item.id}
                 id={item.id}
                 name={item.name}
                 image={item.image}
                 new_price={item.new_price}
                 old_price={item.old_price}
               />
-            );
-          })}
-        </div>
+            ))}
       </div>
-    );
-  };
-  
+    </section>
+  );
+};
 
 export default Popular;

@@ -1,23 +1,27 @@
 import React from "react";
 import "./Offers.css";
-import exclusive_image from "../Assets/exclusive_image.png";  
+import exclusive_image from "../Assets/exclusive_image.png";
+import { Link } from "react-router-dom";
 
 const Offers = () => {
   return (
-    <div className="offers">
+    <section className="offers">
       <div className="offers-left">
-        <h1>Exclusive</h1>
-        <h1>Offers For You</h1>
-        <p>ONLY ON BEST SELLER PRODUCTS</p>
-        <button>Check Now</button>
+        <p className="offers-tag">Limited Time</p>
+        <h2>
+          Exclusive Offers<br />For You
+        </h2>
+        <p className="offers-sub">Only on best seller products</p>
+        <Link to="/womens" className="offers-btn">
+          Shop Now
+        </Link>
       </div>
 
       <div className="offers-right">
-      <img src={exclusive_image} alt="" />
+        <img src={exclusive_image} alt="Exclusive offers" />
       </div>
-    </div>
+    </section>
   );
 };
-
 
 export default Offers;

@@ -1,8 +1,13 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { render, screen } from "@testing-library/react";
+import ShopContextProvider from "./Context/ShopContext";
+import App from "./App";
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+test("renders navbar with SHOPPER brand", () => {
+  render(
+    <ShopContextProvider>
+      <App />
+    </ShopContextProvider>
+  );
+  const brand = screen.getByText(/shopper/i);
+  expect(brand).toBeInTheDocument();
 });
