@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --red:    #ff4141;
+  --ink:    #111111;
+  --muted:  #777777;
+  --border: #ebebeb;
+}
+
+/* ── Section ─────────────────────────────────────── */
+.offers {
+  font-family: 'Sora', sans-serif;
+  display: flex;
+  align-items: center;
+  width: 75%;
+  margin: 0 auto 100px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #fff5f5 0%, #fff 60%, #f0f7ff 100%);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  padding: 0 80px;
+  min-height: 380px;
+}
+
+/* ── Left ────────────────────────────────────────── */
+.offers-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px 0;
+}
+
+.offers-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+
+.offers-left h2 {
+  font-size: 52px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+}
+
+.offers-sub {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 400;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.offers-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin-top: 8px;
+  padding: 13px 28px;
+  background: var(--ink);
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: background 0.18s, transform 0.15s;
+}
+.offers-btn:hover {
+  background: var(--red);
+  transform: translateY(-1px);
+}
+
+/* ── Right ───────────────────────────────────────── */
+.offers-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  overflow: hidden;
+}
+.offers-right img {
+  height: 340px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 1280px) {
+  .offers {
+    width: 85%;
+    padding: 0 60px;
+    min-height: 320px;
+  }
+  .offers-left h2 { font-size: 42px; letter-spacing: -1px; }
+  .offers-right img { height: 280px; }
+}
+
+@media (max-width: 1024px) {
+  .offers {
+    width: 90%;
+    padding: 0 40px;
+    min-height: 280px;
+  }
+  .offers-left h2 { font-size: 34px; }
+  .offers-right img { height: 240px; }
+}
+
+@media (max-width: 800px) {
+  .offers {
+    width: calc(100% - 32px);
+    padding: 0 32px;
+    min-height: auto;
+    margin-bottom: 60px;
+    border-radius: 16px;
+  }
+  .offers-left { gap: 12px; padding: 40px 0; }
+  .offers-left h2 { font-size: 28px; letter-spacing: -0.5px; }
+  .offers-right img { height: 200px; }
+}
+
+@media (max-width: 500px) {
+  .offers {
+    flex-direction: column;
+    padding: 32px 24px 0;
+    align-items: flex-start;
+  }
+  .offers-left { padding: 0 0 24px; }
+  .offers-left h2 { font-size: 26px; }
+  .offers-right {
+    width: 100%;
+    justify-content: center;
+  }
+  .offers-right img { height: 180px; }
+}

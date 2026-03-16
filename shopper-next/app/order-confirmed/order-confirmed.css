@@ -1,0 +1,57 @@
+.order-confirmed {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  font-family: 'Sora', sans-serif;
+}
+
+.order-confirmed-box {
+  text-align: center;
+  max-width: 480px;
+}
+
+.order-confirmed-icon {
+  width: 80px;
+  height: 80px;
+  background: #22a84a;
+  color: white;
+  font-size: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+
+.order-confirmed-box h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 12px;
+}
+
+.order-confirmed-box p {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.order-confirmed-btn {
+  background: #111;
+  color: white;
+  border: none;
+  padding: 14px 40px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+.order-confirmed-btn:hover {
+  background: #ff4141;
+}

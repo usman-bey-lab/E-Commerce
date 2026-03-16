@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --red:    #ff4141;
+  --ink:    #111111;
+  --muted:  #777777;
+  --border: #ebebeb;
+}
+
+/* ── Section ─────────────────────────────────────── */
+.relatedproducts {
+  font-family: 'Sora', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 80px 100px;
+  gap: 32px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Header row ──────────────────────────────────── */
+.rp-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+}
+.rp-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rp-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+.rp-header h2 {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0;
+  letter-spacing: -0.8px;
+}
+
+/* ── Sort dropdown ───────────────────────────────── */
+.rp-sort {
+  position: relative;
+}
+.rp-sort-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: 'Sora', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.18s;
+  white-space: nowrap;
+}
+.rp-sort-btn:hover,
+.rp-sort-btn.open {
+  border-color: var(--ink);
+}
+.rp-sort-btn svg {
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.rp-sort-btn.open svg {
+  transform: rotate(180deg);
+}
+.rp-sort-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  z-index: 10;
+  min-width: 200px;
+}
+.rp-sort-option {
+  display: block;
+  width: 100%;
+  padding: 11px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  font-family: 'Sora', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.rp-sort-option:hover {
+  background: #f5f5f5;
+  color: var(--ink);
+}
+.rp-sort-option.active {
+  color: var(--ink);
+  font-weight: 600;
+  background: #f9f9f9;
+}
+
+/* ── Count ───────────────────────────────────────── */
+.rp-count {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 400;
+  margin: 0;
+  align-self: flex-start;
+}
+
+/* ── Grid ────────────────────────────────────────── */
+.rp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  width: 100%;
+}
+
+/* ── Explore more button ─────────────────────────── */
+.rp-explore-btn {
+  padding: 13px 36px;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: 100px;
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, color 0.18s;
+  margin-top: 8px;
+}
+.rp-explore-btn:hover {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 1280px) {
+  .relatedproducts { padding: 60px 50px 80px; gap: 24px; }
+  .rp-header h2    { font-size: 30px; }
+  .rp-grid         { gap: 18px; }
+}
+
+@media (max-width: 1024px) {
+  .relatedproducts { padding: 48px 30px 64px; }
+  .rp-header h2    { font-size: 26px; }
+  .rp-grid         { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 800px) {
+  .relatedproducts { padding: 40px 16px 60px; gap: 20px; }
+  .rp-header       { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .rp-header h2    { font-size: 22px; }
+  .rp-grid         { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+}
+
+@media (max-width: 500px) {
+  .rp-header h2    { font-size: 20px; }
+  .rp-grid         { gap: 12px; }
+}
