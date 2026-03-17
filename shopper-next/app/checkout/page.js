@@ -26,16 +26,27 @@ export default function CheckoutPage() {
     phone: "",
   })
 
-  const cartProducts = all_product.filter((p) => cartItems[p.id] > 0)
-  const subtotal     = getTotalCartAmount()
-  const discount     = promoDiscount || 0
-  const finalTotal   = subtotal - discount
+  // ── Build cart entries from new "itemId_size" key format ──
+  const cartEntries = Object.keys(cartItems)
+    .filter(key => key.includes('_') && cartItems[key] > 0)
+    .map(key => {
+      const [itemId, size] = key.split('_')
+      const product = all_product.find(p => p.id === Number(itemId))
+      if (!product) return null
+      return { product, size, quantity: cartItems[key] }
+    })
+    .filter(Boolean)
+
+  const subtotal   = getTotalCartAmount()
+  const discount   = promoDiscount || 0
+  const finalTotal = subtotal - discount
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
   const handlePlaceOrder = async () => {
+    // ── Validation ──
     const required = ["firstName","lastName","email","street","city","state","zip","country","phone"]
     for (const field of required) {
       if (!form[field].trim()) {
@@ -44,38 +55,55 @@ export default function CheckoutPage() {
       }
     }
 
+    // Basic email check
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      setError("Please enter a valid email address")
+      return
+    }
+
+    if (cartEntries.length === 0) {
+      setError("Your cart is empty")
+      return
+    }
+
     setError("")
     setLoading(true)
 
-    const items = cartProducts.map((p) => ({
-      productId: p.id,
-      name:      p.name,
-      price:     p.new_price,
-      quantity:  cartItems[p.id],
-      image:     p.image,
+    const items = cartEntries.map(({ product, size, quantity }) => ({
+      productId: product.id,
+      name:      product.name,
+      price:     product.new_price,
+      quantity,
+      size,
+      image:     product.image,
     }))
 
-    const res = await fetch("http://localhost:4000/orders", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "auth-token": localStorage.getItem("auth-token"),
-      },
-      body: JSON.stringify({
-        items,
-        delivery:    form,
-        totalAmount: finalTotal,
-        promoCode:   localStorage.getItem("appliedPromoCode") || null,
-      }),
-    })
+    try {
+      const res = await fetch("http://localhost:4000/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("auth-token"),
+        },
+        body: JSON.stringify({
+          items,
+          delivery:    form,
+          totalAmount: finalTotal,
+          promoCode:   localStorage.getItem("appliedPromoCode") || null,
+        }),
+      })
 
-    const data = await res.json()
+      const data = await res.json()
 
-    if (data.success) {
-      clearCart()
-      router.push("/order-confirmed")
-    } else {
-      setError(data.error || "Something went wrong")
+      if (data.success) {
+        clearCart()
+        localStorage.removeItem("appliedPromoCode")
+        router.push("/order-confirmed")
+      } else {
+        setError(data.error || "Something went wrong. Please try again.")
+      }
+    } catch {
+      setError("Network error. Please check your connection and try again.")
     }
 
     setLoading(false)
@@ -92,20 +120,67 @@ export default function CheckoutPage() {
           <h2>Delivery Information</h2>
           <div className="checkout-form">
             <div className="checkout-row">
-              <input name="firstName" placeholder="First Name" value={form.firstName} onChange={handleChange} />
-              <input name="lastName"  placeholder="Last Name"  value={form.lastName}  onChange={handleChange} />
+              <input
+                name="firstName"
+                placeholder="First Name"
+                value={form.firstName}
+                onChange={handleChange}
+              />
+              <input
+                name="lastName"
+                placeholder="Last Name"
+                value={form.lastName}
+                onChange={handleChange}
+              />
             </div>
-            <input name="email"  type="email" placeholder="Email Address"  value={form.email}  onChange={handleChange} />
-            <input name="street" placeholder="Street Address"               value={form.street} onChange={handleChange} />
+            <input
+              name="email"
+              type="email"
+              placeholder="Email Address"
+              value={form.email}
+              onChange={handleChange}
+            />
+            <input
+              name="street"
+              placeholder="Street Address"
+              value={form.street}
+              onChange={handleChange}
+            />
             <div className="checkout-row">
-              <input name="city"  placeholder="City"  value={form.city}  onChange={handleChange} />
-              <input name="state" placeholder="State" value={form.state} onChange={handleChange} />
+              <input
+                name="city"
+                placeholder="City"
+                value={form.city}
+                onChange={handleChange}
+              />
+              <input
+                name="state"
+                placeholder="State"
+                value={form.state}
+                onChange={handleChange}
+              />
             </div>
             <div className="checkout-row">
-              <input name="zip"     placeholder="ZIP Code" value={form.zip}     onChange={handleChange} />
-              <input name="country" placeholder="Country"  value={form.country} onChange={handleChange} />
+              <input
+                name="zip"
+                placeholder="ZIP Code"
+                value={form.zip}
+                onChange={handleChange}
+              />
+              <input
+                name="country"
+                placeholder="Country"
+                value={form.country}
+                onChange={handleChange}
+              />
             </div>
-            <input name="phone" type="tel" placeholder="Phone Number" value={form.phone} onChange={handleChange} />
+            <input
+              name="phone"
+              type="tel"
+              placeholder="Phone Number"
+              value={form.phone}
+              onChange={handleChange}
+            />
           </div>
         </div>
 
@@ -113,29 +188,42 @@ export default function CheckoutPage() {
         <div className="checkout-right">
           <h2>Order Summary</h2>
 
+          {/* ── Cart Items ── */}
           <div className="checkout-items">
-            {cartProducts.map((p) => (
-              <div key={p.id} className="checkout-item">
-                <img src={p.image} alt={p.name} />
-                <div className="checkout-item-info">
-                  <p>{p.name}</p>
-                  <span>Qty: {cartItems[p.id]}</span>
+            {cartEntries.length === 0 ? (
+              <p className="checkout-empty">No items in cart.</p>
+            ) : (
+              cartEntries.map(({ product, size, quantity }) => (
+                <div key={`${product.id}_${size}`} className="checkout-item">
+                  <img src={product.image} alt={product.name} />
+                  <div className="checkout-item-info">
+                    <p>{product.name}</p>
+                    <span>Size: {size}</span>
+                    <span>Qty: {quantity}</span>
+                  </div>
+                  <p>${(product.new_price * quantity).toFixed(2)}</p>
                 </div>
-                <p>${(p.new_price * cartItems[p.id]).toFixed(2)}</p>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
+          {/* ── Totals ── */}
           <div className="checkout-total">
             <div className="checkout-total-row">
               <span>Subtotal</span>
               <span>${subtotal.toFixed(2)}</span>
             </div>
 
-            {/* Show discount only if promo was applied */}
             {discount > 0 && (
               <div className="checkout-total-row">
-                <span>Discount</span>
+                <span>
+                  Discount
+                  {localStorage.getItem("appliedPromoCode") && (
+                    <span className="checkout-promo-tag">
+                      {" "}({localStorage.getItem("appliedPromoCode").toUpperCase()})
+                    </span>
+                  )}
+                </span>
                 <span className="checkout-discount">-${discount.toFixed(2)}</span>
               </div>
             )}
@@ -144,7 +232,9 @@ export default function CheckoutPage() {
               <span>Shipping</span>
               <span className="checkout-free">Free</span>
             </div>
+
             <hr />
+
             <div className="checkout-total-row checkout-grand">
               <span>Total</span>
               <span>${finalTotal.toFixed(2)}</span>
@@ -156,7 +246,7 @@ export default function CheckoutPage() {
           <button
             className="checkout-pay-btn"
             onClick={handlePlaceOrder}
-            disabled={loading}
+            disabled={loading || cartEntries.length === 0}
           >
             {loading ? "Placing Order..." : "Place Order"}
           </button>
@@ -165,6 +255,7 @@ export default function CheckoutPage() {
             ← Back to Cart
           </Link>
         </div>
+
       </div>
     </div>
   )

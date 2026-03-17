@@ -19,11 +19,6 @@ const RelatedProducts = ({ category }) => {
   const [showAll, setShowAll] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
 
-  // ── DEBUG: remove these two lines once working ──
-  console.log("RelatedProducts → category prop:", category);
-  console.log("RelatedProducts → all_product categories:", [...new Set(all_product.map(p => p.category))]);
-  // ────────────────────────────────────────────────
-
   // Fallback: if category prop is missing, show all products
   const related = category
     ? all_product.filter((p) => p.category === category)

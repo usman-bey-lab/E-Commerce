@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { useState } from "react";
 import "./NewsLetter.css";
 
@@ -7,7 +7,8 @@ const NewsLetter = () => {
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = () => {
-    if (!email) return;
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!isValidEmail) return;
     setSubmitted(true);
     setEmail("");
   };

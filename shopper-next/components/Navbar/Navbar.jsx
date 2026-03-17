@@ -17,15 +17,13 @@ const Navbar = () => {
   const { getTotalCartItems } = useContext(ShopContext);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  // FIX: ref wraps the ENTIRE navbar so outside-click doesn't
-  // fight with the hamburger button being outside the drawer
   const navRef = useRef();
 
   useEffect(() => {
   setIsLoggedIn(!!localStorage.getItem("auth-token"))
 }, [])
-
 
   const activeKey = NAV_LINKS.find((l) => l.path === pathname)?.key || "shop";
 
@@ -36,25 +34,23 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // FIX: outside-click closes drawer — ref is on the whole nav
-  // so hamburger clicks are correctly "inside" and won't auto-close
   useEffect(() => {
     const handleOutside = (e) => {
       if (navRef.current && !navRef.current.contains(e.target)) {
         setMenuOpen(false);
       }
     };
+
     if (menuOpen) document.addEventListener("mousedown", handleOutside);
     return () => document.removeEventListener("mousedown", handleOutside);
   }, [menuOpen]);
 
-  // Close drawer on route change (navigating closes menu too)
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
 
   const cartCount = getTotalCartItems();
- const [isLoggedIn, setIsLoggedIn] = useState(false)
+
 
   const handleLogout = () => {
     localStorage.removeItem("auth-token");
@@ -120,8 +116,6 @@ const Navbar = () => {
       </div>
 
       {/* ── Mobile drawer ── */}
-      {/* FIX: Using visibility/opacity instead of display:none so
-          the drawer doesn't disappear before animation ends */}
       <div className={`nav-drawer${menuOpen ? " open" : ""}`}>
         {NAV_LINKS.map(({ label, path, key }) => (
           <Link

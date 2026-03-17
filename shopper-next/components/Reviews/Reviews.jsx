@@ -9,7 +9,9 @@ const StarRating = ({ rating, onRate, readonly = false }) => {
       {[1, 2, 3, 4, 5].map((star) => (
         <span
           key={star}
-          className={`review-star ${star <= (hovered || rating) ? 'filled' : 'empty'} ${!readonly ? 'clickable' : ''}`}
+          className={`review-star ${star <= (hovered || rating) ? 'filled' : 'empty'} ${
+            !readonly ? 'clickable' : ''
+          }`}
           onClick={() => !readonly && onRate && onRate(star)}
           onMouseEnter={() => !readonly && setHovered(star)}
           onMouseLeave={() => !readonly && setHovered(0)}
@@ -21,14 +23,20 @@ const StarRating = ({ rating, onRate, readonly = false }) => {
   )
 }
 
-export default function Reviews({ productId, selectedRating = 0, onRatingChange }) {
-  const [reviews, setReviews]           = useState([])  // ← add this
-  const [avgRating, setAvgRating]       = useState(0)
+export default function Reviews({
+  productId,
+  selectedRating = 0,   // star rating selected in ProductDisplay, passed down from page.js
+  onRatingChange,       // resets star to 0 after submit
+  onReviewSubmitted,    // refreshes avgRating in page.js after submit
+}) {
+  const [reviews,      setReviews]      = useState([])
+  const [avgRating,    setAvgRating]    = useState(0)
   const [totalReviews, setTotalReviews] = useState(0)
-  const [comment, setComment]           = useState('')
-  const [submitting, setSubmitting]     = useState(false)
-  const [error, setError]               = useState('')
-  const [isLoggedIn, setIsLoggedIn]     = useState(false)
+  const [comment,      setComment]      = useState('')
+  const [submitting,   setSubmitting]   = useState(false)
+  const [error,        setError]        = useState('')
+  const [successMsg,   setSuccessMsg]   = useState('')
+  const [isLoggedIn,   setIsLoggedIn]   = useState(false)
 
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem('auth-token'))
@@ -38,43 +46,61 @@ export default function Reviews({ productId, selectedRating = 0, onRatingChange 
     fetch(`http://localhost:4000/reviews/${productId}`)
       .then(r => r.json())
       .then(data => {
-        setReviews(data.reviews)
-        setAvgRating(data.avgRating)
-        setTotalReviews(data.totalReviews)
+        setReviews(data.reviews       ?? [])
+        setAvgRating(data.avgRating   ?? 0)
+        setTotalReviews(data.totalReviews ?? 0)
       })
+      .catch(() => {})
   }
 
   useEffect(() => {
     fetchReviews()
   }, [productId])
 
+  // ── This is the ONLY place a review is POSTed to the API ──
   const handleSubmit = async () => {
-    if (selectedRating === 0) {
-      setError('Please select a star rating above the product')
+    if (!selectedRating || selectedRating === 0) {
+      setError('Please click a star above the product image to set your rating first')
       return
     }
     if (!comment.trim()) {
-      setError('Please write a comment')
+      setError('Please write a comment before submitting')
       return
     }
+
     setError('')
+    setSuccessMsg('')
     setSubmitting(true)
 
-    const res = await fetch(`http://localhost:4000/reviews/${productId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'auth-token': localStorage.getItem('auth-token')
-      },
-      body: JSON.stringify({ rating: selectedRating, comment })
-    })
+    try {
+      const res = await fetch(`http://localhost:4000/reviews/${productId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'auth-token': localStorage.getItem('auth-token'),
+        },
+        body: JSON.stringify({
+          rating:  selectedRating,
+          comment: comment.trim(),
+        }),
+      })
 
-    const data = await res.json()
-    if (data.success) {
-      setComment('')
-      if (onRatingChange) onRatingChange(0)
-      fetchReviews()
+      const data = await res.json()
+
+      if (data.success) {
+        setComment('')
+        setSuccessMsg('✓ Your review has been submitted!')
+        if (onRatingChange)     onRatingChange(0)      // reset star selection
+        if (onReviewSubmitted)  onReviewSubmitted()    // refresh avgRating in page.js
+        fetchReviews()                                 // refresh review list
+        setTimeout(() => setSuccessMsg(''), 3500)
+      } else {
+        setError(data.error || 'Failed to submit. Please try again.')
+      }
+    } catch {
+      setError('Network error. Please check your connection.')
     }
+
     setSubmitting(false)
   }
 
@@ -86,7 +112,9 @@ export default function Reviews({ productId, selectedRating = 0, onRatingChange 
         <h2>Reviews ({totalReviews})</h2>
         <div className="reviews-summary">
           <StarRating rating={Math.round(avgRating)} readonly={true} />
-          <span className="reviews-avg-text">{avgRating} out of 5</span>
+          <span className="reviews-avg-text">
+            {avgRating > 0 ? `${avgRating} out of 5` : 'No ratings yet'}
+          </span>
         </div>
       </div>
 
@@ -94,17 +122,27 @@ export default function Reviews({ productId, selectedRating = 0, onRatingChange 
       {isLoggedIn ? (
         <div className="reviews-form">
           <h3>Write a Review</h3>
-          {selectedRating > 0 && (
+
+          {/* Shows star rating selected from ProductDisplay above */}
+          {selectedRating > 0 ? (
             <p className="reviews-selected-rating">
-              Your rating: {'★'.repeat(selectedRating)}{'☆'.repeat(5 - selectedRating)}
+              Your rating: {'★'.repeat(selectedRating)}{'☆'.repeat(5 - selectedRating)} ({selectedRating}/5)
+            </p>
+          ) : (
+            <p className="reviews-rating-prompt">
+             
             </p>
           )}
+
           <textarea
             placeholder="Share your experience with this product..."
             value={comment}
             onChange={e => setComment(e.target.value)}
           />
-          {error && <p className="reviews-error">{error}</p>}
+
+          {error      && <p className="reviews-error">{error}</p>}
+          {successMsg && <p className="reviews-success">{successMsg}</p>}
+
           <button onClick={handleSubmit} disabled={submitting}>
             {submitting ? 'Submitting...' : 'Submit Review'}
           </button>
@@ -118,9 +156,7 @@ export default function Reviews({ productId, selectedRating = 0, onRatingChange 
       {/* ── Reviews List ── */}
       <div className="reviews-list">
         {reviews.length === 0 ? (
-          <p className="reviews-empty">
-            No reviews yet. Be the first to review this product!
-          </p>
+          <p className="reviews-empty">No reviews yet. Be the first to review this product!</p>
         ) : (
           reviews.map((review, i) => (
             <div key={i} className="review-card">
@@ -128,7 +164,7 @@ export default function Reviews({ productId, selectedRating = 0, onRatingChange 
                 <div className="review-header-left">
                   <span className="review-username">{review.username}</span>
                   <div className="star-rating">
-                    {[1,2,3,4,5].map(star => (
+                    {[1, 2, 3, 4, 5].map(star => (
                       <span
                         key={star}
                         className={`review-star ${star <= review.rating ? 'filled' : 'empty'}`}
