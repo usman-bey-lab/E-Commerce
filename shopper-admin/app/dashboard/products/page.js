@@ -3,6 +3,8 @@ import { useEffect, useState, useCallback } from 'react'
 import '../page.css'
 import './products.css'
 
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 const CATEGORIES = [
   { key: 'all',   label: 'All',   color: '#6079ff' },
   { key: 'men',   label: 'Men',   color: '#3b82f6' },
@@ -38,7 +40,7 @@ export default function ProductsPage() {
 
   const fetchProducts = useCallback(async () => {
     try {
-      const res = await fetch('http://localhost:4000/allproducts')
+      const res = await fetch(`${API}/allproducts`)
       const data = await res.json()
       setProducts(data)
     } catch {
@@ -80,7 +82,7 @@ export default function ProductsPage() {
       if (image) {
         const formData = new FormData()
         formData.append('product', image)
-        const uploadRes = await fetch('http://localhost:4000/upload', {
+        const uploadRes = await fetch(`${API}/upload`, {
           method: 'POST',
           headers: { 'admin-token': token() },
           body: formData
@@ -90,14 +92,14 @@ export default function ProductsPage() {
         imageUrl = uploadData.image_url
       }
       if (editing) {
-        await fetch(`http://localhost:4000/editproduct/${editing.id}`, {
+        await fetch(`${API}/editproduct/${editing.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', 'admin-token': token() },
           body: JSON.stringify({ name: form.name, category: form.category, new_price: Number(form.new_price), old_price: Number(form.old_price), available: form.available, image: imageUrl })
         })
         showToast('success', `"${form.name}" updated!`)
       } else {
-        await fetch('http://localhost:4000/addproduct', {
+        await fetch(`${API}/addproduct`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'admin-token': token() },
           body: JSON.stringify({ name: form.name, category: form.category, new_price: Number(form.new_price), old_price: Number(form.old_price), available: form.available, image: imageUrl })
@@ -115,7 +117,7 @@ export default function ProductsPage() {
   const handleDelete = async (id) => {
     const product = products.find(p => p.id === id)
     try {
-      await fetch('http://localhost:4000/removeproduct', {
+      await fetch(`${API}/removeproduct`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'admin-token': token() },
         body: JSON.stringify({ id })

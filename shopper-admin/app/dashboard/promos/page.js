@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import '../page.css'
 import './promos.css'
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
 const emptyForm = {
   code: '', discount: '', type: 'percent',
@@ -26,7 +27,7 @@ export default function PromosPage() {
   }
 
   const fetchPromos = () => {
-    fetch('http://localhost:4000/admin/promocodes', {
+    fetch(`${API}/admin/promocodes`, {
       headers: { 'admin-token': token() }
     })
     .then(r => r.json())
@@ -45,7 +46,7 @@ export default function PromosPage() {
     setFormError('')
     setSubmitting(true)
 
-    const res = await fetch('http://localhost:4000/admin/promocodes', {
+    const res = await fetch(`${API}/admin/promocodes`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -73,7 +74,7 @@ export default function PromosPage() {
   }
 
   const handleToggle = async (promo) => {
-    await fetch(`http://localhost:4000/admin/promocodes/${promo._id}`, {
+    await fetch(`${API}/admin/promocodes/${promo._id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -86,7 +87,7 @@ export default function PromosPage() {
   }
 
   const handleDelete = async (id) => {
-    await fetch(`http://localhost:4000/admin/promocodes/${id}`, {
+    await fetch(`${API}/admin/promocodes/${id}`, {
       method: 'DELETE',
       headers: { 'admin-token': token() }
     })

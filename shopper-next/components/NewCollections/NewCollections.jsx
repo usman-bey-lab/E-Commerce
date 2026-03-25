@@ -2,13 +2,14 @@
 import React, { useEffect, useState } from "react";
 import "./NewCollections.css";
 import Item from "@/components/Item/Item";
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
 const NewCollections = () => {
   const [newCollection, setNewCollection] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:4000/newcollection")
+    fetch(`${API}/newcollection`)
       .then((res) => res.json())
       .then((data) => {
         setNewCollection(data);

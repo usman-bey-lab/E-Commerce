@@ -4,6 +4,8 @@ import "./CartItems.css";
 import { ShopContext } from "@/context/ShopContext";
 import Link from "next/link";
 
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 const CartItems = () => {
   const {
     getTotalCartAmount,
@@ -45,7 +47,7 @@ const CartItems = () => {
     setPromoError("");
     setPromoApplied(null);
 
-    const res = await fetch("http://localhost:4000/validatepromo", {
+    const res = await fetch(`${API}/validatepromo`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code: promoCode }),

@@ -2,6 +2,7 @@ import React from "react";
 import "./Item.css";
 import Link from 'next/link'
 
+
 const Item = ({ id, name, image, new_price, old_price }) => {
   const discount = Math.round(((old_price - new_price) / old_price) * 100);
 

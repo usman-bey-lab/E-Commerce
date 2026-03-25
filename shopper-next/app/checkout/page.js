@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import "./checkout.css"
 
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function CheckoutPage() {
   const {
     cartItems,
@@ -79,7 +81,7 @@ export default function CheckoutPage() {
     }))
 
     try {
-      const res = await fetch("http://localhost:4000/orders", {
+      const res = await fetch(`${API}/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,47 +1,21 @@
 import express from "express";
-import multer from "multer";
-import path from "path";
-import { fileURLToPath } from "url";
+import { upload } from '../config/cloudinary.js'
 import { body, validationResult } from "express-validator";
 import Product from "../models/Product.js";
 import User from "../models/User.js";
 
 const router = express.Router();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// ── Multer ────────────────────────────────────────────────────
-const ALLOWED_TYPES = /jpeg|jpg|png|webp/;
-
-const storage = multer.diskStorage({
-  destination: path.join(__dirname, "../upload/images"),
-  filename: (req, file, cb) => {
-    cb(null, `product_${Date.now()}${path.extname(file.originalname).toLowerCase()}`);
-  },
-});
-
-const fileFilter = (req, file, cb) => {
-  const extValid  = ALLOWED_TYPES.test(path.extname(file.originalname).toLowerCase());
-  const mimeValid = ALLOWED_TYPES.test(file.mimetype);
-  extValid && mimeValid
-    ? cb(null, true)
-    : cb(new Error("Only .jpg, .jpeg, .png and .webp files are allowed."), false);
-};
-
-const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
 
 // ── POST /upload ──────────────────────────────────────────────
-router.post("/upload", upload.single("product"), (req, res) => {
-  if (!req.file) return res.status(400).json({ success: false, error: "No file uploaded." });
-  res.json({ success: true, image_url: `${process.env.BASE_URL}/images/${req.file.filename}` });
-});
-
-router.use((err, req, res, next) => {
-  if (err instanceof multer.MulterError || err.message.includes("Only")) {
-    return res.status(400).json({ success: false, error: err.message });
+router.post('/upload', upload.single('product'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, error: 'No file uploaded.' })
   }
-  next(err);
-});
+  res.json({
+    success:   true,
+    image_url: req.file.path  // Cloudinary HTTPS URL
+  })
+})
 
 // ── POST /addproduct ──────────────────────────────────────────
 router.post(
@@ -63,10 +37,10 @@ router.post(
       const newId = lastProduct ? lastProduct.id + 1 : 1;
 
       const product = new Product({
-        id: newId,
-        name: req.body.name,
-        image: req.body.image,
-        category: req.body.category,
+        id:        newId,
+        name:      req.body.name,
+        image:     req.body.image,
+        category:  req.body.category,
         new_price: req.body.new_price,
         old_price: req.body.old_price,
       });
@@ -119,8 +93,8 @@ router.put(
       const updated = await Product.findOneAndUpdate(
         { id: Number(req.params.id) },
         {
-          name: req.body.name,
-          category: req.body.category,
+          name:      req.body.name,
+          category:  req.body.category,
           new_price: Number(req.body.new_price),
           old_price: Number(req.body.old_price),
           available: req.body.available !== undefined ? req.body.available : true,

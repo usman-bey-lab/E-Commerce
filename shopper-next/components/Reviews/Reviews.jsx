@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react'
 import './Reviews.css'
 
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 const StarRating = ({ rating, onRate, readonly = false }) => {
   const [hovered, setHovered] = useState(0)
   return (
@@ -43,7 +45,7 @@ export default function Reviews({
   }, [])
 
   const fetchReviews = () => {
-    fetch(`http://localhost:4000/reviews/${productId}`)
+    fetch(`${API}/reviews/${productId}`)
       .then(r => r.json())
       .then(data => {
         setReviews(data.reviews       ?? [])
@@ -73,7 +75,7 @@ export default function Reviews({
     setSubmitting(true)
 
     try {
-      const res = await fetch(`http://localhost:4000/reviews/${productId}`, {
+      const res = await fetch(`${API}/reviews/${productId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

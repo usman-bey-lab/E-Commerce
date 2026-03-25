@@ -7,6 +7,8 @@ import DescriptionBox from "@/components/DescriptionBox/DescriptionBox";
 import RelatedProducts from "@/components/RelatedProducts/RelatedProducts";
 import Reviews from "@/components/Reviews/Reviews";
 
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function ProductPage({ params }) {
   const { id } = use(params);
   const { all_product } = useContext(ShopContext);
@@ -20,7 +22,7 @@ export default function ProductPage({ params }) {
   useEffect(() => {
     if (!id) return;
     setReviewsLoading(true);
-    fetch(`http://localhost:4000/reviews/${id}`)
+    fetch(`${API}/reviews/${id}`)
       .then((r) => r.json())
       .then((data) => {
         setAvgRating(data.avgRating   ?? 0);
@@ -35,7 +37,7 @@ export default function ProductPage({ params }) {
 
   // ── Refresh review summary after user submits a review ──
   const refreshRatings = () => {
-    fetch(`http://localhost:4000/reviews/${id}`)
+    fetch(`${API}/reviews/${id}`)
       .then((r) => r.json())
       .then((data) => {
         setAvgRating(data.avgRating   ?? 0);

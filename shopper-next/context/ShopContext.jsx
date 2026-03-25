@@ -1,6 +1,8 @@
 "use client";
 import React, { createContext, useState, useEffect } from "react";
 
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export const ShopContext = createContext(null);
 
 const getDefaultCart = () => {
@@ -20,7 +22,7 @@ const ShopContextProvider = (props) => {
     setCartItems(getDefaultCart());
     // Also clear on backend
     if (localStorage.getItem("auth-token")) {
-      fetch("http://localhost:4000/clearcart", {
+      fetch(`${API}/clearcart`, {
         method: "POST",
         headers: {
           "auth-token": localStorage.getItem("auth-token"),
@@ -31,12 +33,12 @@ const ShopContextProvider = (props) => {
   };
 
   useEffect(() => {
-    fetch("http://localhost:4000/allproducts")
+    fetch(`${API}/allproducts`)
       .then((response) => response.json())
       .then((data) => setAll_Product(data));
 
     if (localStorage.getItem("auth-token")) {
-      fetch("http://localhost:4000/getcart", {
+      fetch(`${API}/getcart`, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -57,7 +59,7 @@ const ShopContextProvider = (props) => {
     }
     const cartKey = `${itemId}_${size}`;
     setCartItems((prev) => ({ ...prev, [cartKey]: (prev[cartKey] || 0) + 1 }));
-    fetch("http://localhost:4000/addtocart", {
+    fetch(`${API}/addtocart`, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -80,7 +82,7 @@ const ShopContextProvider = (props) => {
       ...prev,
       [cartKey]: Math.max((prev[cartKey] || 0) - 1, 0),
     }));
-    fetch("http://localhost:4000/removefromcart", {
+    fetch(`${API}/removefromcart`, {
       method: "POST",
       headers: {
         Accept: "application/json",

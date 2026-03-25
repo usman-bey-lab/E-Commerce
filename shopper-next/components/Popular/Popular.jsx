@@ -2,13 +2,14 @@
 import React, { useEffect, useState } from "react";
 import Item from "@/components/Item/Item";
 import "./Popular.css";
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
 const Popular = () => {
   const [popularProducts, setPopularProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:4000/popularinwomen")
+    fetch(`${API}/popularinwomen`)
       .then((response) => response.json())
       .then((data) => {
         setPopularProducts(data);

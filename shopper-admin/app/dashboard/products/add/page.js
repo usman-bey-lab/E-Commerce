@@ -3,6 +3,8 @@ import { useState } from 'react'
 import '../../page.css'
 import './add.css'
 
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function AddProductPage() {
   const [image, setImage]       = useState(null)
   const [preview, setPreview]   = useState(null)
@@ -54,7 +56,7 @@ export default function AddProductPage() {
     try {
       const formData = new FormData()
       formData.append('product', image)
-      const uploadRes = await fetch('http://localhost:4000/upload', {
+      const uploadRes = await fetch(`${API}/upload`, {
         method: 'POST',
         headers: { Accept: 'application/json' },
         body: formData,
@@ -66,7 +68,7 @@ export default function AddProductPage() {
         return
       }
 
-      const addRes = await fetch('http://localhost:4000/addproduct', {
+      const addRes = await fetch(`${API}/addproduct`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({

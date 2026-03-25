@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import '../page.css'
 import './users.css'
 
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function UsersPage() {
   const [users, setUsers]     = useState([])
   const [loading, setLoading] = useState(true)
@@ -14,7 +16,7 @@ export default function UsersPage() {
   const token = () => localStorage.getItem('admin-token')
 
   useEffect(() => {
-    fetch('http://localhost:4000/admin/users', {
+    fetch(`${API}/admin/users`, {
       headers: { 'admin-token': token() }
     })
     .then(r => r.json())
@@ -24,7 +26,7 @@ export default function UsersPage() {
   const handleSelectUser = async (user) => {
     setSelected(user)
     setOrdersLoading(true)
-    const res = await fetch(`http://localhost:4000/admin/users/${user._id}/orders`, {
+    const res = await fetch(`${API}/admin/users/${user._id}/orders`, {
       headers: { 'admin-token': token() }
     })
     const data = await res.json()

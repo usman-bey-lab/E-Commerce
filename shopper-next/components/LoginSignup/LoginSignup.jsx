@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import "./LoginSignup.css";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
 const LoginSignup = () => {
   const [state, setState] = useState("Login");
@@ -15,7 +16,7 @@ const LoginSignup = () => {
 
   const login = async () => {
   let responseData;
-  await fetch("http://localhost:4000/login", {
+  await fetch(`${API}/login`, {
     method: "POST",
     headers: { Accept: "application/json", "Content-Type": "application/json" },
     body: JSON.stringify(formData),
@@ -40,7 +41,7 @@ const signup = async () => {
     return;
   }
   let responseData;
-  await fetch("http://localhost:4000/signup", {
+  await fetch(`${API}/signup`, {
     method: "POST",
     headers: { Accept: "application/json", "Content-Type": "application/json" },
     body: JSON.stringify(formData),

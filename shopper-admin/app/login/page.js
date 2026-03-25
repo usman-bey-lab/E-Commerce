@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import './login.css'
 
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function AdminLogin() {
   const router = useRouter()
   const [email, setEmail]       = useState('')
@@ -18,7 +20,7 @@ export default function AdminLogin() {
     setError('')
     setLoading(true)
 
-    const res = await fetch('http://localhost:4000/admin/login', {
+    const res = await fetch(`${API}/admin/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })

@@ -2,12 +2,14 @@
 import { useEffect, useState } from 'react'
 import './page.css'
 
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function DashboardPage() {
   const [stats, setStats]     = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('http://localhost:4000/admin/stats', {
+    fetch(`${API}/admin/stats`, {
       headers: { 'admin-token': localStorage.getItem('admin-token') }
     })
     .then(r => r.json())

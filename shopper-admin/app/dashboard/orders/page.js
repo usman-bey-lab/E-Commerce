@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import '../page.css'
 import './orders.css'
 
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 const STATUS_OPTIONS = ['pending', 'processing', 'shipped', 'delivered', 'cancelled']
 
 const STATUS_COLORS = {
@@ -21,7 +23,7 @@ export default function OrdersPage() {
   const [selected, setSelected] = useState(null)
 
   const fetchOrders = () => {
-    fetch('http://localhost:4000/admin/orders', {
+    fetch(`${API}/admin/orders`, {
       headers: { 'admin-token': localStorage.getItem('admin-token') }
     })
     .then(r => r.json())
@@ -36,7 +38,7 @@ export default function OrdersPage() {
   }, [])
 
   const updateStatus = async (orderId, status) => {
-    await fetch(`http://localhost:4000/admin/orders/${orderId}`, {
+    await fetch(`${API}/orders/${orderId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
