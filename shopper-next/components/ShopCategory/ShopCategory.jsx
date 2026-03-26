@@ -3,7 +3,7 @@ import React, { useContext, useState } from "react";
 import "./ShopCategory.css";
 import { ShopContext } from "@/context/ShopContext";
 import Item from "@/components/Item/Item";
-import PromoBanner from "@/Components/PromoBanner/PromoBanner";
+import PromoBanner from "@/components/PromoBanner/PromoBanner";
 
 const SORT_OPTIONS = [
   { label: "Relevance",          value: "default"   },
