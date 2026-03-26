@@ -25,12 +25,16 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(cors({
   origin: [
     process.env.FRONTEND_URL || "http://localhost:3000",
-    "http://localhost:3001", "http://localhost:3002",
-    process.env.ADMIN_URL || "https://e-commerce-xcdy.vercel.app/",
+    "http://localhost:3001",
+    "http://localhost:3002",
+    process.env.ADMIN_URL || "https://e-commerce-xcdy.vercel.app",
   ],
-  methods: ["GET", "POST", "DELETE", "PUT"],
+  methods: ["GET", "POST", "DELETE", "PUT", "OPTIONS"],
   allowedHeaders: ["Content-Type", "auth-token", "admin-token"],
+  credentials: true,
 }));
+
+app.options("*", cors());
 
 // ── Body parser MUST come before routes ──────────────────────
 app.use(express.json({ limit: "10kb" }));
