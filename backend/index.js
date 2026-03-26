@@ -26,7 +26,7 @@ app.use(cors({
   origin: [
     process.env.FRONTEND_URL || "http://localhost:3000",
     "http://localhost:3001", "http://localhost:3002",
-    process.env.ADMIN_URL || "http://localhost:5173",
+    process.env.ADMIN_URL || "https://e-commerce-xcdy.vercel.app/",
   ],
   methods: ["GET", "POST", "DELETE", "PUT"],
   allowedHeaders: ["Content-Type", "auth-token", "admin-token"],
